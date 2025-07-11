@@ -64,7 +64,7 @@ public static class DriverEndpoints
 
             return Results.Ok(result);
         })
-        .WithName("UpdateDriverStatus")
+        .WithName("UpdateDriver")
         .WithOpenApi();
 
         // Delete a driver

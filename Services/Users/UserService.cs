@@ -92,7 +92,8 @@ public class UserService : BaseService, IUserService
         if (user == null)
             return null;
             
-        user.UpdateFromDto(updateUserDto);
+        // Use fully qualified class name to avoid ambiguity
+        DriveApp.Services.Helpers.MapperHelpers.UpdateFromDto(user, updateUserDto);
         
         // Update roles if provided
         if (updateUserDto.RoleIds != null)
@@ -152,7 +153,7 @@ public class UserService : BaseService, IUserService
         return true;
     }
     
-    public async Task<UserDto> GetUserByPhoneNumberAsync(string phoneNumber)
+    public async Task<UserDto?> GetUserByPhoneNumberAsync(string phoneNumber)
     {
         var user = await _dbContext.Users
             .Include(u => u.UserRoles)
@@ -341,7 +342,7 @@ public class UserService : BaseService, IUserService
         await _dbContext.SaveChangesAsync();
         
         // Generate tokens
-        var token = GenerateJwtToken(user);
+        var token = GenerateJwtToken(user.ToDto());
         var refreshToken = GenerateRefreshToken();
         
         return new VerificationResultDto
@@ -438,7 +439,7 @@ public class UserService : BaseService, IUserService
                 };
             }
             
-            var newToken = GenerateJwtToken(user);
+            var newToken = GenerateJwtToken(user.ToDto());
             var newRefreshToken = GenerateRefreshToken();
             
             return new TokenResultDto
@@ -499,41 +500,48 @@ public class UserService : BaseService, IUserService
         return new Random().Next(100000, 999999).ToString();
     }
     
-    private string GenerateJwtToken(User user)
+    public string GenerateJwtToken(UserDto user)
     {
-        var jwtSettings = _configuration.GetSection("JwtSettings");
-        var secretKey = jwtSettings["SecretKey"] ?? "default_secret_key_for_development_only_change_in_production";
-        var issuer = jwtSettings["Issuer"] ?? "DriveApp";
-        var audience = jwtSettings["Audience"] ?? "DriveApp_Users";
-        var expiryMinutes = int.Parse(jwtSettings["ExpiryMinutes"] ?? "60");
-        
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Name, user.PhoneNumber),
-            new Claim(ClaimTypes.MobilePhone, user.PhoneNumber),
-            new Claim("IsPhoneVerified", user.IsPhoneVerified.ToString())
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.MobilePhone, user.PhoneNumber ?? string.Empty)
         };
         
-        // Add roles as claims
-        foreach (var userRole in user.UserRoles)
+        // Add name claims if available
+        if (!string.IsNullOrEmpty(user.FirstName))
+            claims.Add(new Claim(ClaimTypes.GivenName, user.FirstName));
+        
+        if (!string.IsNullOrEmpty(user.LastName))
+            claims.Add(new Claim(ClaimTypes.Surname, user.LastName));
+        
+        // Add email claim if available
+        if (!string.IsNullOrEmpty(user.Email))
+            claims.Add(new Claim(ClaimTypes.Email, user.Email));
+        
+        // Add role claims
+        foreach (var role in user.Roles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, userRole.Role.Name));
+            claims.Add(new Claim(ClaimTypes.Role, role));
         }
         
-        var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
-            signingCredentials: credentials
-        );
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+            _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT key not configured")));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(24),
+            signingCredentials: creds);
+            
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+    
+    private string GenerateJwtToken(User user)
+    {
+        return GenerateJwtToken(user.ToDto());
     }
     
     private string GenerateRefreshToken()
@@ -595,5 +603,24 @@ public class UserService : BaseService, IUserService
         }
         
         return principal;
+    }
+    
+    public async Task<UserDto> UpdateUserLastLoginAsync(Guid userId)
+    {
+        var user = await _dbContext.Users
+            .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+            
+        if (user == null)
+            throw new KeyNotFoundException($"User with ID {userId} not found");
+            
+        user.LastLoginAt = DateTime.UtcNow;
+        user.UpdatedAt = DateTime.UtcNow;
+        
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
+        
+        return user.ToDto();
     }
 } 

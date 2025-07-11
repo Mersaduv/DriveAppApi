@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DriveApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8a89c6f562d0be1d90f6f24a3c0618986fc6af6a")]
 [assembly: System.Reflection.AssemblyProductAttribute("DriveApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DriveApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

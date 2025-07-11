@@ -14,26 +14,6 @@ public class UserDto
     public List<string> Roles { get; set; } = new List<string>();
 }
 
-public class CreateUserDto
-{
-    public string PhoneNumber { get; set; } = string.Empty;
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public string? Email { get; set; }
-    public DateTime? DateOfBirth { get; set; }
-    public List<Guid>? RoleIds { get; set; }
-}
-
-public class UpdateUserDto
-{
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
-    public string? Email { get; set; }
-    public DateTime? DateOfBirth { get; set; }
-    public bool? IsActive { get; set; }
-    public List<Guid>? RoleIds { get; set; }
-}
-
 // Authentication DTOs
 public class VerificationResultDto
 {

@@ -7,31 +7,7 @@ using DriveApp.Models.WebSocket;
 
 namespace DriveApp.Services;
 
-public class WebSocketHub : Hub
-{
-    // Connection management
-    public override async Task OnConnectedAsync()
-    {
-        await base.OnConnectedAsync();
-    }
-
-    public override async Task OnDisconnectedAsync(Exception? exception)
-    {
-        await base.OnDisconnectedAsync(exception);
-    }
-    
-    // User can join groups (e.g., driver group, specific trip group)
-    public async Task JoinGroup(string groupName)
-    {
-        await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
-    }
-    
-    // User can leave groups
-    public async Task LeaveGroup(string groupName)
-    {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-    }
-}
+// WebSocketHub class has been moved to its own file (WebSocketHub.cs)
 
 public class WebSocketService : IWebSocketService
 {

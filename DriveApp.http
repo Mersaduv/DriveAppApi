@@ -1,6 +1,47 @@
-@DriveApp_HostAddress = http://localhost:5297
+@baseUrl = https://localhost:5001
+@phoneNumber = +93700123456
+@verificationCode = 123456
+@userId = 00000000-0000-0000-0000-000000000000
+@userType = passenger
 
-GET {{DriveApp_HostAddress}}/weatherforecast/
-Accept: application/json
+### Test API connectivity
+GET {{baseUrl}}/api/auth/custom/ping
 
-###
+### Step 1: Request verification code for passenger
+POST {{baseUrl}}/api/auth/custom/request-code
+Content-Type: application/json
+
+{
+  "phoneNumber": "{{phoneNumber}}",
+  "userType": "passenger"
+}
+
+### Step 1 Alternative: Request verification code for driver
+POST {{baseUrl}}/api/auth/custom/request-code
+Content-Type: application/json
+
+{
+  "phoneNumber": "{{phoneNumber}}",
+  "userType": "driver"
+}
+
+### Step 2: Verify code
+POST {{baseUrl}}/api/auth/custom/verify-code
+Content-Type: application/json
+
+{
+  "phoneNumber": "{{phoneNumber}}",
+  "code": "{{verificationCode}}"
+}
+
+### Step 3: Complete registration as a passenger
+POST {{baseUrl}}/api/auth/custom/complete-registration
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "phoneNumber": "{{phoneNumber}}",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com"
+}

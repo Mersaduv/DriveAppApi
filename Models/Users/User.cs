@@ -8,6 +8,7 @@ public class User : BaseEntity
 {
     public string PhoneNumber { get; set; } = string.Empty;
     public bool IsPhoneVerified { get; set; } = false;
+    public DateTime? PhoneVerifiedAt { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public string? Email { get; set; }
