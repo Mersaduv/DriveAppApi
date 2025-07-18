@@ -83,6 +83,15 @@ public class AuthService : IAuthService
                 .Where(v => v.PhoneNumber == phoneNumber && !v.IsUsed && v.ExpiresAt > DateTime.UtcNow)
                 .FirstOrDefaultAsync();
 
+            // Check if user exists (but don't throw any errors if they do)
+            var userExists = await _dbContext.Users
+                .AnyAsync(u => u.PhoneNumber == phoneNumber);
+            
+            if (userExists)
+            {
+                _logger.LogInformation("User already exists with phone number: {PhoneNumber}, proceeding with verification", phoneNumber);
+            }
+
             if (existingVerification != null)
             {
                 _logger.LogInformation("Updating existing verification for {PhoneNumber}", phoneNumber);
@@ -234,7 +243,13 @@ public class AuthService : IAuthService
             var token = GenerateJwtToken(user);
             _logger.LogInformation("Generated JWT token for user {UserId}", user.Id);
 
-            return (true, isNewUser ? "New user created and verified" : "Phone verified successfully", user.ToDto(), token, userType);
+            // For existing users, we want to make sure the flow continues smoothly
+            // We'll return success with an appropriate message
+            var message = isNewUser 
+                ? "New user created and verified" 
+                : "Phone verified successfully";
+
+            return (true, message, user.ToDto(), token, userType);
         }
         catch (Exception ex)
         {
@@ -257,9 +272,9 @@ public class AuthService : IAuthService
             claims.Add(new Claim(ClaimTypes.Email, user.Email));
         }
 
-        if (!string.IsNullOrEmpty(user.FirstName) && !string.IsNullOrEmpty(user.LastName))
+        if (!string.IsNullOrEmpty(user.FullName))
         {
-            claims.Add(new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"));
+            claims.Add(new Claim(ClaimTypes.Name, user.FullName));
         }
 
         // Add user roles

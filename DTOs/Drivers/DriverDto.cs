@@ -25,8 +25,7 @@ public class DriverDto
 public class DriverRegistrationDto
 {
     public string PhoneNumber { get; set; } = string.Empty;
-    public string? FirstName { get; set; }
-    public string? LastName { get; set; }
+    public string? FullName { get; set; }
     public string? Email { get; set; }
     public DateTime DateOfBirth { get; set; }
     public string NationalCardNumber { get; set; } = string.Empty;

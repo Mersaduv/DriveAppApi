@@ -32,7 +32,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerConfiguration();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseCorsConfiguration();
 
 // Enable authentication and authorization

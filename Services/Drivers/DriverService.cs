@@ -70,8 +70,7 @@ public class DriverService : BaseService, IDriverService
             user = new User
             {
                 PhoneNumber = driverDto.PhoneNumber,
-                FirstName = driverDto.FirstName,
-                LastName = driverDto.LastName,
+                FullName = driverDto.FullName,
                 Email = driverDto.Email,
                 DateOfBirth = driverDto.DateOfBirth,
                 IsActive = true,

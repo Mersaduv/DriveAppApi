@@ -58,8 +58,7 @@ public class PassengerService : BaseService, IPassengerService
             user = new User
             {
                 PhoneNumber = passengerDto.PhoneNumber,
-                FirstName = passengerDto.FirstName,
-                LastName = passengerDto.LastName,
+                FullName = passengerDto.FullName,
                 Email = passengerDto.Email,
                 IsActive = true,
                 IsPhoneVerified = false  // Should be verified through a verification process
@@ -71,6 +70,24 @@ public class PassengerService : BaseService, IPassengerService
         {
             // Use existing user
             user = existingUser;
+            // Update missing user info if provided in registration
+            bool userUpdated = false;
+            if (string.IsNullOrWhiteSpace(user.FullName) && !string.IsNullOrWhiteSpace(passengerDto.FullName))
+            {
+                user.FullName = passengerDto.FullName;
+                userUpdated = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(user.Email) && !string.IsNullOrWhiteSpace(passengerDto.Email))
+            {
+                user.Email = passengerDto.Email;
+                userUpdated = true;
+            }
+
+            if (userUpdated)
+            {
+                _dbContext.Users.Update(user);
+            }
             
             // Check if user already has a passenger profile
             var existingPassenger = await _dbContext.Passengers

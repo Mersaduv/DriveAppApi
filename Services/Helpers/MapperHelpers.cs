@@ -21,8 +21,7 @@ public static class MapperHelpers
             Id = user.Id,
             PhoneNumber = user.PhoneNumber,
             IsPhoneVerified = user.IsPhoneVerified,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
+            FullName = user.FullName,
             Email = user.Email,
             DateOfBirth = user.DateOfBirth,
             IsActive = user.IsActive,
@@ -36,8 +35,7 @@ public static class MapperHelpers
         return new User
         {
             PhoneNumber = dto.PhoneNumber,
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
+            FullName = dto.FullName,
             Email = dto.Email,
             DateOfBirth = dto.DateOfBirth
         };
@@ -45,8 +43,7 @@ public static class MapperHelpers
     
     public static void UpdateFromDto(this User user, UpdateUserDto dto)
     {
-        if (dto.FirstName != null) user.FirstName = dto.FirstName;
-        if (dto.LastName != null) user.LastName = dto.LastName;
+        if (dto.FullName != null) user.FullName = dto.FullName;
         if (dto.Email != null) user.Email = dto.Email;
         if (dto.DateOfBirth.HasValue) user.DateOfBirth = dto.DateOfBirth;
         if (dto.IsActive.HasValue) user.IsActive = dto.IsActive.Value;

@@ -9,9 +9,7 @@ public class CreateUserDto
     [Phone]
     public string PhoneNumber { get; set; } = string.Empty;
     
-    public string? FirstName { get; set; }
-    
-    public string? LastName { get; set; }
+    public string? FullName { get; set; }
     
     [EmailAddress]
     public string? Email { get; set; }
@@ -25,8 +23,7 @@ public class CreateUserDto
         return new User
         {
             PhoneNumber = PhoneNumber,
-            FirstName = FirstName,
-            LastName = LastName,
+            FullName = FullName,
             Email = Email,
             DateOfBirth = DateOfBirth,
             IsPhoneVerified = true, // Phone is verified through Firebase

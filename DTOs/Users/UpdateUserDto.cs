@@ -5,9 +5,7 @@ namespace DriveApp.DTOs.Users;
 
 public class UpdateUserDto
 {
-    public string? FirstName { get; set; }
-    
-    public string? LastName { get; set; }
+    public string? FullName { get; set; }
     
     [EmailAddress]
     public string? Email { get; set; }
@@ -23,11 +21,8 @@ public static class UserDtoExtensionsForUpdate
 {
     public static void UpdateFromDto(this User user, UpdateUserDto dto)
     {
-        if (dto.FirstName != null)
-            user.FirstName = dto.FirstName;
-            
-        if (dto.LastName != null)
-            user.LastName = dto.LastName;
+        if (dto.FullName != null)
+            user.FullName = dto.FullName;
             
         if (dto.Email != null)
             user.Email = dto.Email;

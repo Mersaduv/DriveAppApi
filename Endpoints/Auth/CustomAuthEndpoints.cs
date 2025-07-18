@@ -100,16 +100,20 @@ public static class CustomAuthEndpoints
                 }
 
                 logger.LogInformation("Verification successful for {PhoneNumber}", phoneNumber);
+                
+                // Check if this is a new user or existing user based on the message
+                bool isNewUser = result.Message?.Contains("New user created") ?? false;
+                
                 return Results.Ok(new
                 {
                     message = result.Message,
                     token = result.Token,
                     userId = result.User?.Id,
-                    isNewUser = result.Message?.Contains("New user created") ?? false,
+                    isNewUser = isNewUser,
                     success = true,
                     user = result.User,
                     userType = result.UserType,
-                    requiresRegistration = true // Indicates that user needs to complete registration by providing name
+                    requiresRegistration = isNewUser // Only require registration for new users
                 });
             }
             catch (Exception ex)
@@ -134,7 +138,7 @@ public static class CustomAuthEndpoints
         {
             logger.LogInformation("Complete registration request for userId: {UserId}", request.UserId);
             
-            if (string.IsNullOrEmpty(request.FirstName) || request.UserId == Guid.Empty)
+            if (string.IsNullOrEmpty(request.FullName) || request.UserId == Guid.Empty)
             {
                 logger.LogWarning("Missing required fields for registration completion");
                 return Results.BadRequest(new { 
@@ -149,8 +153,7 @@ public static class CustomAuthEndpoints
                 var passengerDto = new PassengerRegistrationDto
                 {
                     PhoneNumber = request.PhoneNumber,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
+                    FullName = request.FullName,
                     Email = request.Email
                 };
                 
@@ -208,7 +211,6 @@ public class CompleteRegistrationDto
 {
     public Guid UserId { get; set; }
     public string PhoneNumber { get; set; } = string.Empty;
-    public string FirstName { get; set; } = string.Empty;
-    public string? LastName { get; set; }
+    public string FullName { get; set; } = string.Empty;
     public string? Email { get; set; }
 } 

@@ -508,12 +508,9 @@ public class UserService : BaseService, IUserService
             new Claim(ClaimTypes.MobilePhone, user.PhoneNumber ?? string.Empty)
         };
         
-        // Add name claims if available
-        if (!string.IsNullOrEmpty(user.FirstName))
-            claims.Add(new Claim(ClaimTypes.GivenName, user.FirstName));
-        
-        if (!string.IsNullOrEmpty(user.LastName))
-            claims.Add(new Claim(ClaimTypes.Surname, user.LastName));
+        // Add full name claim if available
+        if (!string.IsNullOrEmpty(user.FullName))
+            claims.Add(new Claim(ClaimTypes.Name, user.FullName));
         
         // Add email claim if available
         if (!string.IsNullOrEmpty(user.Email))
